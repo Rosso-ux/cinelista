@@ -1,5 +1,5 @@
 import { Filme } from "@/types/types";
-import Card from "@/app/components/Cards/indes";
+import Card from "@/app/components/Cards";
 import styles from "./Grid.module.css";
 
 type Props = {
