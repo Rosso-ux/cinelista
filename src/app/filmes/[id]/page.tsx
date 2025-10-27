@@ -1,8 +1,8 @@
 /* eslint-disable @next/next/no-img-element */
-import { filmes } from "@/Lib/filmes";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import styles from "./DetelheFilme.module.css";
+import { getMoviesDetails } from "@/Lib/API/tmdb";
 
 type Props = {
   params: Promise<{
@@ -10,16 +10,40 @@ type Props = {
   }>;
 };
 
-const DetalheFilme = async ({ params }: Props) => {
+export const generateMetadata = async ({ params }: Props) => {
   const { id } = await params;
 
-  const details = filmes.find((filme) => filme.id == id);
+  const details = await getMoviesDetails(id);
+
+  if (!details) {
+    return {
+      title: "Filme não encontrado",
+    };
+  }
+
+  return {
+    title: `${details.title} | Cinelista`,
+    description: details.overview,
+    openGraph: {
+      title: `${details.title} | Cinelista`,
+      description: details.overview,
+      image: [
+        `${process.env.NEXT_PUBLIC_TMDB_IMAGE_URL}${details.poster_path}`,
+      ],
+    },
+  };
+};
+
+const DetalheFilme = async ({ params }: Props) => {
+  const { id } = await params;
+  // fazer chamada da API
+  const details = await getMoviesDetails(id);
 
   if (!details) {
     return notFound();
   }
 
-  const { title, imagem, description } = details;
+  const { title, poster_path, overview } = details;
 
   return (
     <>
@@ -32,13 +56,13 @@ const DetalheFilme = async ({ params }: Props) => {
             <figure>
               <img
                 className={styles.detalhes__image}
-                src={imagem}
+                src={`${process.env.NEXT_PUBLIC_TMDB_IMAGE_URL}${poster_path}`}
                 alt={`Poster do filme ${title}`}
               />
             </figure>
             <article className={styles.detalhes__info}>
               <h2>{title}</h2>
-              <p>{description}</p>
+              <p>{overview}</p>
             </article>
           </section>
         </div>

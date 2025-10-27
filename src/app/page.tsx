@@ -1,8 +1,10 @@
 import Title from "./components/Title";
-import { filmes } from "@/Lib/filmes";
 import Grid from "./components/Grid";
+import { getTrendingMovies } from "@/Lib/API/tmdb";
 
-export default function Home() {
+export default async function Home() {
+  const filmes = await getTrendingMovies();
+
   return (
     <>
       <Title title="Filmes em Destaque" />
