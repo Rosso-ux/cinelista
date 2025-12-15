@@ -38,10 +38,10 @@ jobs:
         NEXT_PUBLIC_TMDB_IMAGE_URL : ${{ vars.NEXT_PUBLIC_TMDB_IMAGE_URL}}
 
    tests:
-    runs-on: ubunto-latest # Imagem da maquina usada no CI
-    needs: build
+     runs-on: ubunto-latest # Imagem da maquina usada no CI
+     needs: build
   
-    steps: 
+      steps: 
         - name: Checkout do código
           uses: actions/checkout@v4
 
