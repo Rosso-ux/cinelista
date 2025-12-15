@@ -1,11 +1,14 @@
 # Nome do workflow, aparece na ´Actions´
-name: PipelineCI;CD
+name: PipelineCI/CD
 
 # Definir quando o pipeline sera disparado
 on: 
     push: 
       branches:
-         - main  
+         - main 
+      paths: #so dispara se arquivos nessa pastas mudarem 
+       - "src/**" # só mudanças no código fonte
+       - ".github/workflows/**" # mudanças nos próprios pipelines
     workflow_dispatch: # Habilitar o botao ´Run workflow´ no GitHub Actions
     
 jobs:
@@ -21,13 +24,42 @@ jobs:
       uses: actions/setup-node@v4
       with:
           node-version: '20'
+          cache: "npm"
+          cache-dependency-path: package-lock.json
           
     - name: Instalaçao das dependencias
       run: npm install
+      
     - name: Rodar o build
       run: npm run build
-
       env: 
         TMDB_API_URL : ${{ vars.TMDB_API_URL}}
         TMDB_API_KEY : ${{ secrets.TMDB_API_KEY}}
         NEXT_PUBLIC_TMDB_IMAGE_URL : ${{ vars.NEXT_PUBLIC_TMDB_IMAGE_URL}}
+
+   tests:
+    runs-on: ubunto-latest # Imagem da maquina usada no CI
+    needs: build
+  
+    steps: 
+    - name: Checkout do código
+      uses: actions/checkout@v4
+
+    - name: Instalaçao do Node
+      uses: actions/setup-node@v4
+      with:
+          node-version: '20'
+          cache: "npm"
+          cache-dependency-path: package-lock.json
+          
+    - name: Instalaçao das dependencias
+      run: npm install
+
+    - name: Rodar o lint 
+      run: npm run lint
+      
+    - name: Verificar Formataçao 
+      run: npm run format -- -- check
+
+    - name: Rodar testes
+      run: npm run test
